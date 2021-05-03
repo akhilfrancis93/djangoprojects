@@ -9,20 +9,22 @@ def create_book(request):
     context={}
     context["form"]=form
     if request.method=="POST":
-        form=BookCreateForm(request.POST)
-        if form.is_valid():
-            book_name=form.cleaned_data.get("book_name")
-            author=form.cleaned_data.get("author")
-            pages=form.cleaned_data.get("pages")
-            price=form.cleaned_data.get("price")
-            book=Book(book_name=book_name,author=author,pages=pages,price=price)
-            book.save()
-            print("saved")
-            return redirect("list")
-        else:
-            pass
+       form=BookCreateForm(request.POST)
+    if form.is_valid():
+        form.save()
+#            book_name=form.cleaned_data.get("book_name")
+#            author=form.cleaned_data.get("author")
+#           pages=form.cleaned_data.get("pages")
+#            price=form.cleaned_data.get("price")
+#            book=Book(book_name=book_name,author=author,pages=pages,price=price)
+#            book.save()
+#            print("saved")
+        return redirect("list")
 
-    return render(request,"book/createbook.html",context)
+    else:
+        pass
+
+        return render(request,"book/createbook.html",context)
 
 
 def list_all_book(request):
@@ -44,4 +46,14 @@ def book_delete(request,id):
     return redirect("list")
 
 def book_update(request,id):
-    book=Book.objects.filter(id=id)
+    book=Book.objects.get(id=id)
+    form=BookCreateForm(instance=book)
+    context={}
+    context["form"]=form
+    if request.method=="POST":
+        form=BookCreateForm(request.POST,instance=book)
+        if form.is_valid():
+            form.save()
+            return redirect("list")
+
+    return render(request,"book/editbook.html",context)
