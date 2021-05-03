@@ -1,6 +1,8 @@
 from django.shortcuts import render,redirect
 from.forms import BookCreateForm
 from.models import Book
+from .forms import UserRegistrationForm,LoginForm
+from django.contrib.auth import authenticate,login,logout
 # Create your views here.
 
 
@@ -57,3 +59,38 @@ def book_update(request,id):
             return redirect("list")
 
     return render(request,"book/editbook.html",context)
+
+def registration(request):
+    form=UserRegistrationForm()
+    context={}
+    context["form"]=form
+    if request.method=="POST":
+        form=UserRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("userlogin")
+        else:
+            form=UserRegistrationForm(request.POST)
+            context["form"]=form
+            return render(request, "book/registration.html", context)
+    return render(request,"book/registration.html",context)
+
+def login_user(request):
+    context={}
+    form=LoginForm()
+    context["form"]=form
+    if request.method=="POST":
+        form=LoginForm(request.POST)
+        if form.is_valid():
+            username=form.cleaned_data.get("username")
+            password=form.cleaned_data.get("password")
+            user=authenticate(request,username=username,password=password)
+            if user:
+                login(request,user)
+                return render(request,"book/index.html")
+    return render(request,"book/login.html",context)
+
+
+def signout(request):
+    logout(request)
+    return redirect("userlogin")
